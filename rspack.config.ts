@@ -13,6 +13,7 @@ export default defineConfig({
     rules: [
       {
         test: /\.css$/,
+        use: ['postcss-loader'],
         type: 'css/auto',
       },
       {
