@@ -5,7 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nixie Tube Clock</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-black">
+    <main class="flex min-h-dvh items-center justify-center p-4 sm:p-8">
+      <!--
+        Light-DOM web component (defined in src/nixie/nixie-display.ts) so
+        Tailwind utilities apply. Responsive sizing lives here: the row is its
+        native 1440px wide, but never wider than the viewport (max-w-full) and
+        never taller than the available height (the min/calc term keeps the
+        460px-tall row inside 100dvh minus padding). Internal layout + the
+        digit-swapping behavior live in the component.
+      -->
+      <nixie-display
+        class="w-[min(1440px,calc((100dvh_-_4rem)_*_1440_/_460))] max-w-full"
+      ></nixie-display>
+    </main>
   </body>
 </html>

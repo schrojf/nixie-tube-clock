@@ -21,6 +21,10 @@ export default defineConfig({
         type: 'asset',
       },
       {
+        test: /\.(png|jpe?g|gif|webp|avif)$/,
+        type: 'asset/resource',
+      },
+      {
         test: /\.(?:js|mjs|cjs|ts|mts|cts)$/,
         use: [
           {
