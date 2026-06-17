@@ -22,8 +22,11 @@ export interface NixieSwitchConfig {
   onChange?: (index: number, label: string) => void;
 }
 
+// Subtle frosted panel on the black page. Idle auto-hide is driven centrally
+// (see idle.ts): when the page root carries data-idle, all switches fade out
+// together — quick to reveal (duration-300), gentle to fade (duration-1000).
 const FRAME_CLASS =
-  'inline-flex flex-col items-center gap-2 rounded-2xl bg-neutral-900 px-5 py-3 shadow-xl shadow-black/50 ring-1 ring-white/10 select-none';
+  'inline-flex flex-col items-center gap-2 rounded-2xl bg-white/5 px-5 py-3 ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000';
 // Retro nixie label: warm orange with a soft glow, wide uppercase tracking.
 const LABEL_CLASS =
   'text-sm font-medium uppercase tracking-[0.3em] text-orange-300 [text-shadow:0_0_8px_#fb923c,0_0_18px_#f97316]';

@@ -3,6 +3,7 @@ import { NixieDisplay } from './nixie/nixie-display';
 import { NixieSwitch } from './nixie/nixie-switch';
 import { WallClockSource, startClock } from './nixie/clock';
 import { REPRESENTATIONS } from './nixie/representations';
+import { installIdleAutoHide } from './nixie/idle';
 
 NixieDisplay.register();
 NixieSwitch.register();
@@ -44,3 +45,7 @@ representationSwitch?.configure({
   ariaLabel: 'Time representation',
   onChange: (index) => clock.setFormat(REPRESENTATIONS[index].format),
 });
+
+// Fade all switch controls after inactivity; reveal on any pointer/touch/key
+// activity. One shared timer for the page (see idle.ts) so they fade together.
+installIdleAutoHide();
