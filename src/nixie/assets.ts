@@ -22,22 +22,39 @@ import c3 from '../../assets/controls/3.png';
 import c4 from '../../assets/controls/4.png';
 import c5 from '../../assets/controls/5.png';
 
-/** Digit glyphs indexed 0–9. */
-export const DIGIT_SRCS: readonly string[] = [
-  d0,
-  d1,
-  d2,
-  d3,
-  d4,
-  d5,
-  d6,
-  d7,
-  d8,
-  d9,
-];
+/**
+ * Glyph registry: character → image. This is the single place to add glyphs —
+ * the display builds one preloaded layer per entry in every cell, so a new
+ * character becomes renderable just by registering it here.
+ */
+export const GLYPHS = {
+  '0': d0,
+  '1': d1,
+  '2': d2,
+  '3': d3,
+  '4': d4,
+  '5': d5,
+  '6': d6,
+  '7': d7,
+  '8': d8,
+  '9': d9,
+  '.': separator, // dot / period (numbers/11.png)
+  // ':' : colon, // TODO: import numbers/10.png and register it as the colon
+} as const;
 
-/** The dot/period separator drawn between HH:mm:ss segments. */
-export const SEPARATOR_SRC: string = separator;
+/** A supported glyph character (a key of {@link GLYPHS}). */
+export type GlyphKey = keyof typeof GLYPHS;
+
+/** One display cell: a glyph key, or null for a blank / OFF (unlit) cell. */
+export type GlyphCell = GlyphKey | null;
+
+/**
+ * Image for a blank / OFF cell (the `null` content entry). Kept as its own
+ * dedicated entry so it can be repointed independently of the digit glyphs —
+ * currently the digit-0 image as a placeholder, to be swapped for a real
+ * unlit-tube image later.
+ */
+export const BLANK_SRC: string = d0;
 
 /** Native pixel size of every glyph canvas — drives the layout aspect ratio. */
 export const GLYPH_WIDTH = 180;

@@ -1,4 +1,5 @@
 import type { NixieDisplay } from './nixie-display';
+import type { GlyphCell, GlyphKey } from './assets';
 
 /**
  * A time source yields the value to display, in milliseconds. Each source owns
@@ -33,23 +34,31 @@ export class WallClockSource implements TimeSource {
 //     readMs() { return Math.max(0, this.endsAt - Date.now()); }
 //   }
 
-/** Maps a millisecond value to display digits. */
-export type DigitFormatter = (ms: number) => number[];
+/** Maps a millisecond value to the display's 8 glyph cells. */
+export type ContentFormatter = (ms: number) => GlyphCell[];
 
-/** Split a millisecond value into six HH:mm:ss digits. */
-export const toHHMMSS: DigitFormatter = (ms) => {
+const DIGITS: readonly GlyphKey[] = [
+  '0',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+];
+const tens = (n: number): GlyphKey => DIGITS[Math.floor(n / 10) % 10];
+const ones = (n: number): GlyphKey => DIGITS[n % 10];
+
+/** Format a millisecond value as the 8 cells "HH.mm.ss". */
+export const toHHMMSS: ContentFormatter = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
   const hh = Math.floor(totalSeconds / 3600);
   const mm = Math.floor((totalSeconds % 3600) / 60);
   const ss = totalSeconds % 60;
-  return [
-    Math.floor(hh / 10) % 10,
-    hh % 10,
-    Math.floor(mm / 10),
-    mm % 10,
-    Math.floor(ss / 10),
-    ss % 10,
-  ];
+  return [tens(hh), ones(hh), '.', tens(mm), ones(mm), '.', tens(ss), ones(ss)];
 };
 
 /**
@@ -63,7 +72,7 @@ export const toHHMMSS: DigitFormatter = (ms) => {
 export function startClock(
   display: NixieDisplay,
   source: TimeSource,
-  format: DigitFormatter = toHHMMSS,
+  format: ContentFormatter = toHHMMSS,
 ): () => void {
   let frame = 0;
   let running = true;
@@ -71,7 +80,7 @@ export function startClock(
   void display.ready.then(() => {
     const tick = () => {
       if (!running) return;
-      display.setDigits(format(source.readMs()));
+      display.setContent(format(source.readMs()));
       frame = requestAnimationFrame(tick);
     };
     tick();
