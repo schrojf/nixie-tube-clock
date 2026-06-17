@@ -22,8 +22,19 @@
       <nixie-display
         class="w-[min(1440px,calc((100dvh-20rem)*1440/460))] max-w-full"
       ></nixie-display>
-      <!-- Bottom: mode-specific control (clock mode → time representation). -->
-      <nixie-switch id="representation-switch"></nixie-switch>
+      <!--
+        Bottom: mode-specific control. Both live here; index.ts shows exactly
+        one per mode by toggling `hidden` on the wrappers (kept off the controls
+        themselves, whose inline-flex would fight a display utility).
+      -->
+      <div id="clock-controls" class="w-fit">
+        <!-- Clock mode → time representation. -->
+        <nixie-switch id="representation-switch"></nixie-switch>
+      </div>
+      <div id="stopwatch-controls" class="hidden w-fit">
+        <!-- Stopwatch mode → start / pause / reset. -->
+        <nixie-buttons id="stopwatch-actions"></nixie-buttons>
+      </div>
     </main>
   </body>
 </html>

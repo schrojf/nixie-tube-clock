@@ -41,9 +41,10 @@ export class WallClockSource implements TimeSource {
  */
 export type ContentFormatter = (ms: number) => GlyphCell[];
 
-/** Handle to a running clock: stop it, or swap the active representation. */
+/** Handle to a running clock: stop it, or swap the time source / formatter. */
 export interface ClockController {
   stop(): void;
+  setSource(source: TimeSource): void;
   setFormat(format: ContentFormatter): void;
 }
 
@@ -61,14 +62,15 @@ export function startClock(
   source: TimeSource,
   format: ContentFormatter,
 ): ClockController {
-  let current = format;
+  let currentSource = source;
+  let currentFormat = format;
   let frame = 0;
   let running = true;
 
   void display.ready.then(() => {
     const tick = () => {
       if (!running) return;
-      display.setContent(current(source.readMs()));
+      display.setContent(currentFormat(currentSource.readMs()));
       frame = requestAnimationFrame(tick);
     };
     tick();
@@ -79,8 +81,11 @@ export function startClock(
       running = false;
       cancelAnimationFrame(frame);
     },
+    setSource(next) {
+      currentSource = next;
+    },
     setFormat(next) {
-      current = next;
+      currentFormat = next;
     },
   };
 }
