@@ -15,19 +15,30 @@
         Middle: the time display. Light-DOM web component (see
         src/nixie/nixie-display.ts) so Tailwind utilities apply. Responsive
         sizing lives here: native 1440px wide, never wider than the viewport
-        (max-w-full) and never taller than the available height — the min/calc
-        term keeps the 460px row inside 100dvh minus ~26rem reserved for
-        padding, the gaps, and the controls above/below (mode switch,
-        representation switch, and the stopwatch actions in stopwatch mode).
+        (max-w-full) and never taller than the available height. The min/calc
+        term keeps the 460px row inside 100dvh minus the space reserved for the
+        controls — index.ts swaps this class to a taller reserve in countdown
+        mode (which shows an extra control row).
       -->
       <nixie-display
         class="w-[min(1440px,calc((100dvh-26rem)*1440/460))] max-w-full"
       ></nixie-display>
-      <!-- Representation switch: shared by clock and stopwatch modes. -->
-      <nixie-switch id="representation-switch"></nixie-switch>
-      <!-- Stopwatch actions; shown only in stopwatch mode. -->
-      <div id="stopwatch-controls" class="hidden w-fit">
-        <nixie-buttons id="stopwatch-actions"></nixie-buttons>
+      <!-- Bottom: a tight cluster of controls; index.ts shows the right ones per mode. -->
+      <div class="flex flex-col items-center gap-3">
+        <!-- Representation switch: shared by all modes. -->
+        <nixie-switch id="representation-switch"></nixie-switch>
+        <!-- Stopwatch actions; stopwatch mode only. -->
+        <div id="stopwatch-controls" class="hidden w-fit">
+          <nixie-buttons id="stopwatch-actions"></nixie-buttons>
+        </div>
+        <!-- Countdown duration preset; countdown mode only. -->
+        <div id="duration-controls" class="hidden w-fit">
+          <nixie-switch id="duration-switch"></nixie-switch>
+        </div>
+        <!-- Countdown actions; countdown mode only. -->
+        <div id="countdown-controls" class="hidden w-fit">
+          <nixie-buttons id="countdown-actions"></nixie-buttons>
+        </div>
       </div>
     </main>
   </body>

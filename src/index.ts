@@ -4,6 +4,7 @@ import { NixieSwitch } from './nixie/nixie-switch';
 import { NixieButtons } from './nixie/nixie-buttons';
 import { WallClockSource, startClock } from './nixie/clock';
 import { StopwatchSource } from './nixie/stopwatch';
+import { CountdownSource } from './nixie/countdown';
 import { REPRESENTATIONS } from './nixie/representations';
 import { installIdleAutoHide } from './nixie/idle';
 
@@ -14,10 +15,11 @@ NixieButtons.register();
 const display = document.querySelector<NixieDisplay>('nixie-display');
 if (!display) throw new Error('<nixie-display> element not found');
 
-// Time sources. The stopwatch restores itself from localStorage, so it keeps
-// running across reloads and tab closes.
+// Time sources. Stopwatch and countdown both restore from localStorage, so they
+// keep running correctly across reloads and tab closes.
 const wallClock = new WallClockSource();
 const stopwatch = new StopwatchSource();
+const countdown = new CountdownSource();
 
 // The driver: a source + formatter, both swappable live as the mode changes.
 const clock = startClock(display, wallClock, REPRESENTATIONS[0].format);
@@ -25,29 +27,64 @@ const clock = startClock(display, wallClock, REPRESENTATIONS[0].format);
 // --- Modes ----------------------------------------------------------------
 const MODE = { stopwatch: 0, clock: 1, countdown: 2 } as const;
 
+// Display height reserve depends on how many control rows a mode shows;
+// countdown adds the duration switch. Whole class literals so Tailwind sees them.
+const DISPLAY_FIT_DEFAULT = 'w-[min(1440px,calc((100dvh-26rem)*1440/460))]';
+const DISPLAY_FIT_COUNTDOWN = 'w-[min(1440px,calc((100dvh-31rem)*1440/460))]';
+
 const stopwatchControls = document.querySelector<HTMLElement>(
   '#stopwatch-controls',
 );
+const durationControls =
+  document.querySelector<HTMLElement>('#duration-controls');
+const countdownControls = document.querySelector<HTMLElement>(
+  '#countdown-controls',
+);
+
 let representationIndex = 0;
+let currentMode: number = MODE.clock;
+
+// Pulse the display while a finished countdown is the thing on screen.
+function reflectFinish(): void {
+  display.classList.toggle(
+    'animate-pulse',
+    currentMode === MODE.countdown && countdown.finished,
+  );
+}
+countdown.onComplete = reflectFinish;
 
 function applyMode(mode: number): void {
+  currentMode = mode;
   const stopwatchMode = mode === MODE.stopwatch;
+  const countdownMode = mode === MODE.countdown;
 
   // Only the source differs between modes; the representation switch picks the
-  // formatter for both, so elapsed time gets the same readouts as the clock.
-  // (Countdown isn't built yet — it falls back to the wall clock for now.)
-  clock.setSource(stopwatchMode ? stopwatch : wallClock);
+  // formatter for all of them, so elapsed/remaining get the same readouts.
+  clock.setSource(
+    stopwatchMode ? stopwatch : countdownMode ? countdown : wallClock,
+  );
   clock.setFormat(REPRESENTATIONS[representationIndex].format);
 
-  // The start/pause/reset actions appear only in stopwatch mode; the
-  // representation switch stays visible in every mode.
+  // Show the controls for the active mode; the representation switch is shared.
   stopwatchControls?.classList.toggle('hidden', !stopwatchMode);
+  durationControls?.classList.toggle('hidden', !countdownMode);
+  countdownControls?.classList.toggle('hidden', !countdownMode);
+
+  // Countdown shows an extra control row, so it needs more reserved height.
+  display.classList.remove(DISPLAY_FIT_DEFAULT, DISPLAY_FIT_COUNTDOWN);
+  display.classList.add(
+    countdownMode ? DISPLAY_FIT_COUNTDOWN : DISPLAY_FIT_DEFAULT,
+  );
+
+  reflectFinish();
 }
 
-// Open in stopwatch mode if one is in progress, so a running stopwatch is
-// visible again on return; otherwise the clock.
-const initialMode =
-  stopwatch.running || stopwatch.readMs() > 0 ? MODE.stopwatch : MODE.clock;
+// Open in whichever timer is actively running so it's visible again on return.
+const initialMode = countdown.running
+  ? MODE.countdown
+  : stopwatch.running || stopwatch.readMs() > 0
+    ? MODE.stopwatch
+    : MODE.clock;
 
 // Top: mode switch.
 const modeSwitch = document.querySelector<NixieSwitch>('#mode-switch');
@@ -59,8 +96,7 @@ modeSwitch?.configure({
   onChange: (index) => applyMode(index),
 });
 
-// Representation switch (shared by clock and stopwatch): a different formatter
-// per option, applied to whichever source the active mode feeds.
+// Representation switch: shared by every mode (formats whatever source is live).
 const representationSwitch = document.querySelector<NixieSwitch>(
   '#representation-switch',
 );
@@ -75,8 +111,7 @@ representationSwitch?.configure({
   },
 });
 
-// Bottom (stopwatch mode): start / pause / reset. The rAF driver reflects the
-// new elapsed automatically, so the actions just mutate the source.
+// Stopwatch actions. The rAF driver reflects the new elapsed automatically.
 const stopwatchActions =
   document.querySelector<NixieButtons>('#stopwatch-actions');
 stopwatchActions?.configure({
@@ -85,6 +120,54 @@ stopwatchActions?.configure({
     { label: 'Start', onPress: () => stopwatch.start() },
     { label: 'Pause', onPress: () => stopwatch.pause() },
     { label: 'Reset', onPress: () => stopwatch.reset() },
+  ],
+});
+
+// Countdown duration presets — a 5-state switch picks the target to count from.
+const DURATION_PRESETS = [
+  { label: '1 Min', ms: 60_000 },
+  { label: '5 Min', ms: 5 * 60_000 },
+  { label: '10 Min', ms: 10 * 60_000 },
+  { label: '30 Min', ms: 30 * 60_000 },
+  { label: '1 Hour', ms: 60 * 60_000 },
+];
+const durationIndex = Math.max(
+  0,
+  DURATION_PRESETS.findIndex((p) => p.ms === countdown.duration),
+);
+const durationSwitch = document.querySelector<NixieSwitch>('#duration-switch');
+durationSwitch?.configure({
+  states: 5,
+  labels: DURATION_PRESETS.map((p) => p.label),
+  value: durationIndex,
+  ariaLabel: 'Countdown duration',
+  onChange: (index) => {
+    countdown.setDuration(DURATION_PRESETS[index].ms);
+    reflectFinish();
+  },
+});
+
+// Countdown actions — same start / pause / reset as the stopwatch.
+const countdownActions =
+  document.querySelector<NixieButtons>('#countdown-actions');
+countdownActions?.configure({
+  ariaLabel: 'Countdown controls',
+  buttons: [
+    {
+      label: 'Start',
+      onPress: () => {
+        countdown.start();
+        reflectFinish();
+      },
+    },
+    { label: 'Pause', onPress: () => countdown.pause() },
+    {
+      label: 'Reset',
+      onPress: () => {
+        countdown.reset();
+        reflectFinish();
+      },
+    },
   ],
 });
 
