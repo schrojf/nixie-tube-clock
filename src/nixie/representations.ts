@@ -45,7 +45,7 @@ const decimal = (value: number): GlyphCell[] => {
   return toCells(text);
 };
 
-/** "HH.mm.ss" — the standard clock readout (current behavior). */
+/** "HH.mm.ss" — the standard readout (wall-clock time, or stopwatch elapsed). */
 export const toClock: ContentFormatter = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
   const hh = Math.floor(totalSeconds / 3600);
@@ -54,21 +54,24 @@ export const toClock: ContentFormatter = (ms) => {
   return [tens(hh), ones(hh), '.', tens(mm), ones(mm), '.', tens(ss), ones(ss)];
 };
 
-// The same instant as a single normalized decimal at different scales. `ms` is
-// milliseconds since local midnight, so the day fraction is ms / MS_PER_DAY and
-// every other scale is that fraction times the units in a day.
+// A duration as a single normalized decimal at different scales. `ms` is just a
+// duration — time since midnight for the clock, or elapsed time for the
+// stopwatch — so the day fraction is ms / MS_PER_DAY and every other scale is
+// that fraction times the units in a day. The clock stays within each range;
+// the stopwatch may exceed it (e.g. "25.00000" hours), which the 8-cell decimal
+// formatter handles.
 const scaled =
   (unitsPerDay: number): ContentFormatter =>
   (ms) =>
     decimal((ms / MS_PER_DAY) * unitsPerDay);
 
-/** Fraction of the day, 0.0–1.0 (1.000000 = 24:00:00). */
+/** Duration as a fraction of a day (1.000000 = 24h). */
 export const toDay: ContentFormatter = scaled(1);
-/** Time of day in hours, 0.0–24.0. */
+/** Duration in hours. */
 export const toHours: ContentFormatter = scaled(24);
-/** Time of day in minutes, 0.0–1440.0. */
+/** Duration in minutes. */
 export const toMinutes: ContentFormatter = scaled(1440);
-/** Time of day in seconds, 0.0–86400.0. */
+/** Duration in seconds. */
 export const toSeconds: ContentFormatter = scaled(86_400);
 
 /** One time-representation option: a switch label and the formatter it selects. */
@@ -78,9 +81,10 @@ export interface Representation {
 }
 
 /**
- * Clock-mode time representations, in switch order. Add a representation here
- * (and bump the switch's state count) to offer a new readout — the display and
- * driver are untouched.
+ * Time representations, in switch order — shared by the clock and stopwatch
+ * modes (each formatter just maps a duration in ms to glyphs). Add one here (and
+ * bump the switch's state count) to offer a new readout; display/driver are
+ * untouched.
  */
 export const REPRESENTATIONS: readonly Representation[] = [
   { label: 'Normal', format: toClock },

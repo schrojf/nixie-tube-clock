@@ -4,7 +4,7 @@ import { NixieSwitch } from './nixie/nixie-switch';
 import { NixieButtons } from './nixie/nixie-buttons';
 import { WallClockSource, startClock } from './nixie/clock';
 import { StopwatchSource } from './nixie/stopwatch';
-import { REPRESENTATIONS, toClock } from './nixie/representations';
+import { REPRESENTATIONS } from './nixie/representations';
 import { installIdleAutoHide } from './nixie/idle';
 
 NixieDisplay.register();
@@ -25,7 +25,6 @@ const clock = startClock(display, wallClock, REPRESENTATIONS[0].format);
 // --- Modes ----------------------------------------------------------------
 const MODE = { stopwatch: 0, clock: 1, countdown: 2 } as const;
 
-const clockControls = document.querySelector<HTMLElement>('#clock-controls');
 const stopwatchControls = document.querySelector<HTMLElement>(
   '#stopwatch-controls',
 );
@@ -34,18 +33,14 @@ let representationIndex = 0;
 function applyMode(mode: number): void {
   const stopwatchMode = mode === MODE.stopwatch;
 
-  // Point the display at the mode's source + formatter.
-  if (stopwatchMode) {
-    clock.setSource(stopwatch);
-    clock.setFormat(toClock); // elapsed as HH.mm.ss
-  } else if (mode === MODE.clock) {
-    clock.setSource(wallClock);
-    clock.setFormat(REPRESENTATIONS[representationIndex].format);
-  }
-  // Countdown is not built yet — leave the display on the previous source.
+  // Only the source differs between modes; the representation switch picks the
+  // formatter for both, so elapsed time gets the same readouts as the clock.
+  // (Countdown isn't built yet — it falls back to the wall clock for now.)
+  clock.setSource(stopwatchMode ? stopwatch : wallClock);
+  clock.setFormat(REPRESENTATIONS[representationIndex].format);
 
-  // Show exactly one bottom control (countdown keeps the clock controls for now).
-  clockControls?.classList.toggle('hidden', stopwatchMode);
+  // The start/pause/reset actions appear only in stopwatch mode; the
+  // representation switch stays visible in every mode.
   stopwatchControls?.classList.toggle('hidden', !stopwatchMode);
 }
 
@@ -64,7 +59,8 @@ modeSwitch?.configure({
   onChange: (index) => applyMode(index),
 });
 
-// Bottom (clock mode): time representation — a different formatter per option.
+// Representation switch (shared by clock and stopwatch): a different formatter
+// per option, applied to whichever source the active mode feeds.
 const representationSwitch = document.querySelector<NixieSwitch>(
   '#representation-switch',
 );
