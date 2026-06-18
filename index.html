@@ -21,7 +21,7 @@
         mode (which shows an extra control row).
       -->
       <nixie-display
-        class="w-[min(1440px,calc((100dvh-26rem)*1440/460))] max-w-full"
+        class="w-[clamp(16rem,calc((100dvh-26rem)*1440/460),1440px)] max-w-full"
       ></nixie-display>
       <!-- Bottom: a tight cluster of controls; index.ts shows the right ones per mode. -->
       <div class="flex flex-col items-center gap-3">

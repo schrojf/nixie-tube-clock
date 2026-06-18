@@ -1,1 +1,5 @@
 @import 'tailwindcss';
+
+/* Don't scan the README: its illustrative class examples (e.g. w-[…], 90vw)
+   would otherwise leak dead/invalid utilities into the bundle. */
+@source not '../README.md';

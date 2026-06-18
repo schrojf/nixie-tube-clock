@@ -29,8 +29,13 @@ const MODE = { stopwatch: 0, clock: 1, countdown: 2 } as const;
 
 // Display height reserve depends on how many control rows a mode shows;
 // countdown adds the duration switch. Whole class literals so Tailwind sees them.
-const DISPLAY_FIT_DEFAULT = 'w-[min(1440px,calc((100dvh-26rem)*1440/460))]';
-const DISPLAY_FIT_COUNTDOWN = 'w-[min(1440px,calc((100dvh-31rem)*1440/460))]';
+// clamp() floors the width so a very short viewport (where the reserve exceeds
+// 100dvh) can't drive the calc negative and collapse the display to 0; the page
+// scrolls instead (main is min-h, so it grows).
+const DISPLAY_FIT_DEFAULT =
+  'w-[clamp(16rem,calc((100dvh-26rem)*1440/460),1440px)]';
+const DISPLAY_FIT_COUNTDOWN =
+  'w-[clamp(16rem,calc((100dvh-31rem)*1440/460),1440px)]';
 
 const stopwatchControls = document.querySelector<HTMLElement>(
   '#stopwatch-controls',

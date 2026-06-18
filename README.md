@@ -363,8 +363,9 @@ assets/
 
 Styling uses only standard Tailwind CSS v4 utility classes (no custom CSS). The
 glow uses Tailwind's arbitrary `[text-shadow:…]` utility; responsive display
-sizing uses an arbitrary `w-[min(1440px,calc(…))]` so the tubes render at their
-native size on large screens and scale down to fit on smaller ones.
+sizing uses an arbitrary `w-[clamp(16rem,calc(…),1440px)]` so the tubes render at
+their native size on large screens, scale down to fit on smaller ones, and never
+collapse on very short viewports (the page scrolls instead).
 
 ## Assets & attribution
 
