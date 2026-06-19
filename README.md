@@ -7,7 +7,9 @@ decimal readout can also show it normalized to days, hours, minutes, or seconds.
 Built with TypeScript, [Rspack](https://rspack.rs), and Tailwind CSS v4 — as a
 set of small, decoupled, light‑DOM web components.
 
-![Nixie tube clock](assets/screenshots/nixie-clock.png)
+**▶ Live demo: [nixie-tube-clock.schrojf.sk](https://nixie-tube-clock.schrojf.sk/)**
+
+[![Nixie tube clock](assets/screenshots/nixie-clock.png)](https://nixie-tube-clock.schrojf.sk/)
 
 ## Quick start
 

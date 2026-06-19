@@ -25,14 +25,18 @@ export interface NixieSwitchConfig {
 // Subtle frosted panel on the black page. Idle auto-hide is driven centrally
 // (see idle.ts): when the page root carries data-idle, all switches fade out
 // together — quick to reveal (duration-300), gentle to fade (duration-1000).
+// Frosted panel. Padding scales down below the `sm` breakpoint so the whole
+// control feels smaller on phones.
 const FRAME_CLASS =
-  'inline-flex flex-col items-center gap-2 rounded-2xl bg-white/5 px-5 py-3 ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000';
+  'inline-flex flex-col items-center gap-2 rounded-2xl bg-white/5 px-4 py-2.5 sm:px-5 sm:py-3 ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000';
 // Retro nixie label: warm orange with a soft glow, wide uppercase tracking.
 const LABEL_CLASS =
-  'text-sm font-medium uppercase tracking-[0.3em] text-orange-300 [text-shadow:0_0_8px_#fb923c,0_0_18px_#f97316]';
+  'text-xs sm:text-sm font-medium uppercase tracking-[0.25em] sm:tracking-[0.3em] text-orange-300 [text-shadow:0_0_8px_#fb923c,0_0_18px_#f97316]';
 // Track keeps the native 129/19 aspect; touch-none lets us own swipe gestures.
+// Native 18rem wide, but scales down to a share of the viewport on small screens
+// so it doesn't fill the width on phones.
 const TRACK_CLASS =
-  'relative mt-1 aspect-[129/19] w-72 max-w-full cursor-pointer touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
+  'relative mt-1 aspect-[129/19] w-[min(18rem,55vw)] cursor-pointer touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
 const IMG_CLASS =
   'pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-150';
 
