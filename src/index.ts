@@ -27,15 +27,8 @@ const clock = startClock(display, wallClock, REPRESENTATIONS[0].format);
 // --- Modes ----------------------------------------------------------------
 const MODE = { stopwatch: 0, clock: 1, countdown: 2 } as const;
 
-// Display height reserve depends on how many control rows a mode shows;
-// countdown adds the duration switch. Whole class literals so Tailwind sees them.
-// clamp() floors the width so a very short viewport (where the reserve exceeds
-// 100dvh) can't drive the calc negative and collapse the display to 0; the page
-// scrolls instead (main is min-h, so it grows).
-const DISPLAY_FIT_DEFAULT =
-  'w-[clamp(16rem,calc((100dvh-26rem)*1440/460),1440px)]';
-const DISPLAY_FIT_COUNTDOWN =
-  'w-[clamp(16rem,calc((100dvh-31rem)*1440/460),1440px)]';
+// Display width sizing lives entirely in index.html (a single class on
+// <nixie-display>); the mode only changes the source and which controls show.
 
 const stopwatchControls = document.querySelector<HTMLElement>(
   '#stopwatch-controls',
@@ -74,12 +67,6 @@ function applyMode(mode: number): void {
   stopwatchControls?.classList.toggle('hidden', !stopwatchMode);
   durationControls?.classList.toggle('hidden', !countdownMode);
   countdownControls?.classList.toggle('hidden', !countdownMode);
-
-  // Countdown shows an extra control row, so it needs more reserved height.
-  display.classList.remove(DISPLAY_FIT_DEFAULT, DISPLAY_FIT_COUNTDOWN);
-  display.classList.add(
-    countdownMode ? DISPLAY_FIT_COUNTDOWN : DISPLAY_FIT_DEFAULT,
-  );
 
   reflectFinish();
 }

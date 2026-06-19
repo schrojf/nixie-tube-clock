@@ -14,14 +14,13 @@
       <!--
         Middle: the time display. Light-DOM web component (see
         src/nixie/nixie-display.ts) so Tailwind utilities apply. Responsive
-        sizing lives here: native 1440px wide, never wider than the viewport
-        (max-w-full) and never taller than the available height. The min/calc
-        term keeps the 460px row inside 100dvh minus the space reserved for the
-        controls — index.ts swaps this class to a taller reserve in countdown
-        mode (which shows an extra control row).
+        sizing lives here (the single source of truth): the row fills the
+        viewport width up to its native 1440px (max-w-full keeps it in-bounds).
+        On very short viewports the page scrolls (main is min-h) rather than the
+        tubes collapsing.
       -->
       <nixie-display
-        class="w-[clamp(16rem,calc((100dvh-26rem)*1440/460),1440px)] max-w-full"
+        class="w-[max(calc(100dvh-4rem),1440px)] max-w-full"
       ></nixie-display>
       <!-- Bottom: a tight cluster of controls; index.ts shows the right ones per mode. -->
       <div class="flex flex-col items-center gap-3">
