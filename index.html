@@ -6,24 +6,47 @@
     <title>Nixie Tube Clock</title>
   </head>
   <body class="bg-black group">
+    <!--
+      The two grow/basis-0 wrappers around the display are equal-height
+      spacers, so the tubes stay dead-center vertically no matter how tall the
+      controls above/below them are — switching modes (countdown shows two
+      extra panels) never shifts the display. When the viewport is too short
+      for perfect centering the wrappers shrink toward their content instead
+      of overflowing. basis-0 (a 0px length) rather than flex-1 (a 0% basis)
+      is load-bearing: a percentage basis is indefinite inside a min-h
+      container and falls back to content size, splitting the leftover space
+      unequally. Gap/padding scale with viewport height (not width
+      breakpoints) so landscape phones — wide but short — get compact spacing.
+    -->
     <main
-      class="flex min-h-dvh flex-col items-center justify-center gap-8 p-4 sm:p-8"
+      class="flex min-h-dvh flex-col items-center gap-[min(2rem,4dvh)] p-[min(2rem,3dvh)]"
     >
-      <!-- Top: mode switch (clock / stopwatch / countdown). -->
-      <nixie-switch id="mode-switch"></nixie-switch>
+      <!-- Top: mode switch (clock / stopwatch / countdown), right above the display. -->
+      <div class="flex grow basis-0 items-end">
+        <nixie-switch id="mode-switch"></nixie-switch>
+      </div>
       <!--
         Middle: the time display. Light-DOM web component (see
         src/nixie/nixie-display.ts) so Tailwind utilities apply. Responsive
         sizing lives here (the single source of truth): the row fills the
-        viewport width up to its native 1440px (max-w-full keeps it in-bounds).
-        On very short viewports the page scrolls (main is min-h) rather than the
-        tubes collapsing.
+        viewport width up to its native 1440px (max-w-full keeps it in-bounds),
+        and on short viewports (landscape phones) the calc term sizes the
+        460px-tall row to the height left over after ~18rem of controls, gaps
+        and padding. The 16rem floor keeps the tubes from collapsing on extreme
+        viewports — past that the page scrolls (main is min-h).
       -->
       <nixie-display
-        class="w-[max(calc(100dvh-4rem),1440px)] max-w-full"
+        class="w-[clamp(16rem,calc((100dvh-18rem)*1440/460),1440px)] max-w-full"
       ></nixie-display>
-      <!-- Bottom: a tight cluster of controls; index.ts shows the right ones per mode. -->
-      <div class="flex flex-col items-center gap-3">
+      <!--
+        Bottom: a tight cluster of controls right below the display; index.ts
+        shows the right ones per mode. A wrapping row: panels sit side by side
+        where the width allows (desktop, landscape phones) and stack on narrow
+        portrait screens; content-start keeps the lines hugging the display.
+      -->
+      <div
+        class="flex grow basis-0 flex-wrap content-start items-center justify-center gap-3"
+      >
         <!-- Representation switch: shared by all modes. -->
         <nixie-switch id="representation-switch"></nixie-switch>
         <!-- Stopwatch actions; stopwatch mode only. -->

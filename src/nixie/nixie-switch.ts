@@ -33,10 +33,12 @@ const FRAME_CLASS =
 const LABEL_CLASS =
   'text-xs sm:text-sm font-medium uppercase tracking-[0.25em] sm:tracking-[0.3em] text-orange-300 [text-shadow:0_0_8px_#fb923c,0_0_18px_#f97316]';
 // Track keeps the native 129/19 aspect; touch-none lets us own swipe gestures.
-// Native 18rem wide, but scales down to a share of the viewport on small screens
-// so it doesn't fill the width on phones.
+// Native 18rem wide, but scales down to a share of the viewport on small
+// screens: the vw term keeps it from filling the width on portrait phones, the
+// dvh term shrinks it on short landscape screens so all control panels fit on
+// one row beside each other.
 const TRACK_CLASS =
-  'relative mt-1 aspect-[129/19] w-[min(18rem,55vw)] cursor-pointer touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
+  'relative mt-1 aspect-[129/19] w-[min(18rem,55vw,50dvh)] cursor-pointer touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
 const IMG_CLASS =
   'pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-150';
 

@@ -366,8 +366,17 @@ assets/
 Styling uses only standard Tailwind CSS v4 utility classes (no custom CSS). The
 glow uses Tailwind's arbitrary `[text-shadow:…]` utility; responsive display
 sizing uses an arbitrary `w-[clamp(16rem,calc(…),1440px)]` so the tubes render at
-their native size on large screens, scale down to fit on smaller ones, and never
-collapse on very short viewports (the page scrolls instead).
+their native size on large screens, scale down — by width on portrait screens
+and by height on short landscape ones — on smaller ones, and never collapse on
+very short viewports (the page scrolls instead).
+
+The page wraps the controls above and below the display in equal `flex-1`
+spacers, so the tubes stay vertically centered no matter which mode's controls
+are visible (countdown shows two extra panels without shifting the display).
+The bottom controls form a wrapping row: side by side where the width allows
+(desktop, landscape phones), stacked on portrait phones. Spacing and control
+sizes scale with viewport _height_ (`dvh`), so wide-but-short landscape phones
+get compact spacing instead of desktop breakpoint styles.
 
 ## Assets & attribution
 
