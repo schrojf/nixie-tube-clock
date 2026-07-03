@@ -8,13 +8,17 @@ export interface NixieButtonsConfig {
   ariaLabel?: string;
 }
 
-// Same frosted frame + idle-fade behavior as nixie-switch (see idle.ts);
-// padding/labels scale down below the `sm` breakpoint to match the switch.
-const FRAME_CLASS =
-  'inline-flex items-center gap-1 rounded-2xl bg-white/5 p-1.5 sm:p-2 ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000';
+// Same frosted frame + idle-fade behavior as nixie-switch (see idle.ts), and
+// the same unit-scaling: one fluid font-size (the clamp below, matched to the
+// switch) is the size knob, and the frame padding plus each button's
+// padding/tracking are in `em`, so the whole cluster shrinks together and
+// continuously on small screens. Buttons inherit the font-size (Preflight sets
+// form controls to font-size:100%), so their `em` metrics scale with it.
+const SIZE = 'text-[length:clamp(0.7rem,min(2.7vw,2.4dvh),0.875rem)]';
+const FRAME_CLASS = `inline-flex items-center gap-[0.29em] rounded-2xl bg-white/5 p-[0.57em] ${SIZE} ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000`;
 // Retro nixie label with a soft glow; hover/press/focus feedback.
 const BUTTON_CLASS =
-  'cursor-pointer rounded-xl px-3 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm font-medium uppercase tracking-[0.15em] sm:tracking-[0.2em] text-orange-300 transition duration-150 [text-shadow:0_0_8px_#fb923c80] hover:bg-white/10 hover:text-orange-200 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
+  'cursor-pointer rounded-xl px-[1.14em] py-[0.43em] font-medium uppercase tracking-[0.2em] text-orange-300 transition duration-150 [text-shadow:0_0_8px_#fb923c80] hover:bg-white/10 hover:text-orange-200 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
 
 /**
  * A horizontal group of labeled action buttons in the nixie aesthetic. Pure

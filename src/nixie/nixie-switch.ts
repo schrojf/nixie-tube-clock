@@ -25,20 +25,26 @@ export interface NixieSwitchConfig {
 // Subtle frosted panel on the black page. Idle auto-hide is driven centrally
 // (see idle.ts): when the page root carries data-idle, all switches fade out
 // together — quick to reveal (duration-300), gentle to fade (duration-1000).
-// Frosted panel. Padding scales down below the `sm` breakpoint so the whole
-// control feels smaller on phones.
-const FRAME_CLASS =
-  'inline-flex flex-col items-center gap-2 rounded-2xl bg-white/5 px-4 py-2.5 sm:px-5 sm:py-3 ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000';
+// The whole control scales as one unit, the same idea as nixie-display: a
+// single fluid font-size (the clamp below, driven by min(vw,dvh)) is the size
+// knob, and every metric — gap, padding, label tracking, the track's mt — is
+// in `em`, so they shrink together and continuously on small screens instead
+// of snapping at a breakpoint. 0.875rem is the desktop cap; 0.7rem is the
+// floor that keeps labels legible on the smallest phones.
+const SIZE = 'text-[length:clamp(0.7rem,min(2.7vw,2.4dvh),0.875rem)]';
+const FRAME_CLASS = `inline-flex flex-col items-center gap-[0.57em] rounded-2xl bg-white/5 px-[1.43em] py-[0.86em] ${SIZE} ring-1 ring-white/10 select-none transition-opacity duration-300 group-data-[idle]:opacity-20 group-data-[idle]:duration-1000`;
 // Retro nixie label: warm orange with a soft glow, wide uppercase tracking.
+// Font-size is inherited from the frame; tracking is in `em` so it scales too.
 const LABEL_CLASS =
-  'text-xs sm:text-sm font-medium uppercase tracking-[0.25em] sm:tracking-[0.3em] text-orange-300 [text-shadow:0_0_8px_#fb923c,0_0_18px_#f97316]';
+  'font-medium uppercase tracking-[0.3em] text-orange-300 [text-shadow:0_0_8px_#fb923c,0_0_18px_#f97316]';
 // Track keeps the native 129/19 aspect; touch-none lets us own swipe gestures.
 // Native 18rem wide, but scales down to a share of the viewport on small
 // screens: the vw term keeps it from filling the width on portrait phones, the
 // dvh term shrinks it on short landscape screens so all control panels fit on
-// one row beside each other.
+// one row beside each other. Its 55vw/50dvh rates are tuned to match the font
+// clamp above, so the track and the frame shrink in lockstep.
 const TRACK_CLASS =
-  'relative mt-1 aspect-[129/19] w-[min(18rem,55vw,50dvh)] cursor-pointer touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
+  'relative mt-[0.29em] aspect-[129/19] w-[min(18rem,55vw,50dvh)] cursor-pointer touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60';
 const IMG_CLASS =
   'pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-150';
 
